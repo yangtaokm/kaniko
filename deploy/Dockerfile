@@ -23,6 +23,7 @@ RUN docker-credential-gcr configure-docker
 # Get Amazon ECR credential helper
 RUN go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login
 RUN make -C /go/src/github.com/awslabs/amazon-ecr-credential-helper linux-amd64
+RUN go get -u github.com/Azure/azure-storage-blob-go/azblob
 
 COPY . .
 RUN make

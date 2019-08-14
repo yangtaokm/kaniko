@@ -54,10 +54,11 @@ const (
 	// NoBaseImage is the scratch image
 	NoBaseImage = "scratch"
 
-	GCSBuildContextPrefix      = "gs://"
-	S3BuildContextPrefix       = "s3://"
-	LocalDirBuildContextPrefix = "dir://"
-	GitBuildContextPrefix      = "git://"
+	GCSBuildContextPrefix       = "gs://"
+	S3BuildContextPrefix        = "s3://"
+	LocalDirBuildContextPrefix  = "dir://"
+	GitBuildContextPrefix       = "git://"
+	AzureBlobBuildContextPrefix = "abs://"
 
 	HOME = "HOME"
 	// DefaultHOMEValue is the default value Docker sets for $HOME
