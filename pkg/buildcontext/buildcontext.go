@@ -47,5 +47,5 @@ func GetBuildContext(srcContext string) (BuildContext, error) {
 	case constants.AzureBlobBuildContextPrefix:
 		return &AzureBlob{context: context}, nil
 	}
-	return nil, errors.New("unknown build context prefix provided, please use one of the following: gs://, dir://, s3://, git://，abs://")
+	return nil, errors.New("unknown build context prefix provided, please use one of the following: gs://, dir://, s3://, git://, abs://")
 }
