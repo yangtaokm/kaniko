@@ -58,9 +58,3 @@ images:
 	docker build -t $(REGISTRY)/executor:latest -f deploy/Dockerfile .
 	docker build -t $(REGISTRY)/executor:debug -f deploy/Dockerfile_debug .
 	docker build -t $(REGISTRY)/warmer:latest -f deploy/Dockerfile_warmer .
-
-#------to-be-deleted---------------------------------------#
-.PHONY: testimage
-testimage:
-	docker build -t kanikoacr.azurecr.io/executor:latest -f deploy/Dockerfile .
-	docker push kanikoacr.azurecr.io/executor:latest
