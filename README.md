@@ -92,6 +92,7 @@ You will need to store your build context in a place that kaniko can access.
 Right now, kaniko supports these storage solutions:
 - GCS Bucket
 - S3 Bucket
+- Azure Blob Storage
 - Local Directory
 - Git Repository
 
@@ -117,13 +118,45 @@ When running kaniko, use the `--context` flag with the appropriate prefix to spe
 
 |  Source | Prefix  | Example |
 |---------|---------|---------|
-| Local Directory  | dir://[path to a directory in the kaniko container] | `dir:///workspace` |
-| GCS Bucket       | gs://[bucket name]/[path to .tar.gz]                | `gs://kaniko-bucket/path/to/context.tar.gz` |
-| S3 Bucket        | s3://[bucket name]/[path to .tar.gz]                | `s3://kaniko-bucket/path/to/context.tar.gz` |
-| Git Repository   | git://[repository url][#reference]                  | `git://github.com/acme/myproject.git#refs/heads/mybranch` |
+| Local Directory   | dir://[path to a directory in the kaniko container]             | `dir:///workspace`                                            |
+| GCS Bucket        | gs://[bucket name]/[path to .tar.gz]                            | `gs://kaniko-bucket/path/to/context.tar.gz`                   |
+| S3 Bucket         | s3://[bucket name]/[path to .tar.gz]                            | `s3://kaniko-bucket/path/to/context.tar.gz`                   |
+| Azure Blob Storage| abs://[storage account name]/[container name]/[path to .tar.gz] | `abs://kanikostorageaccount/container/path/to/context.tar.gz` |
+| Git Repository    | git://[repository url][#reference]                              | `git://github.com/acme/myproject.git#refs/heads/mybranch`     |
 
 If you don't specify a prefix, kaniko will assume a local directory.
 For example, to use a GCS bucket called `kaniko-bucket`, you would pass in `--context=gs://kaniko-bucket/path/to/context.tar.gz`.
+
+### Using Azure Blob Storage
+If you are using Azure Blob Storage (abs://) for context file, you will need to pass [Azure Storage Account Access Key](https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string?toc=%2fazure%2fstorage%2fblobs%2ftoc.json) as an evironment variable named `AZURE_STORAGE_ACCESS_KEY` through Kunbernete Secrets
+
+The Kubernetes Pod spec sample as following:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args: ["--dockerfile=<path to Dockerfile within the build context>",
+            "--context=abs://kanikostorageaccount/container/path/to/context.tar.gz",
+            "--destination=<registry for image push>"]
+...
+ env:
+      - name: AZURE_STORAGE_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: azure-storage-access-key
+            key: azure-storage-access-key
+...
+  volumes:
+   - name: azure-storage-access-key
+    secret:
+      secretName: azure-storage-access-key
+```
 
 ### Using Private Git Repository
 You can use `Personal Access Tokens` for Build Contexts from Private Repositories from [GitHub](https://blog.github.com/2012-09-21-easier-builds-and-deployments-using-git-over-https-and-oauth/).
