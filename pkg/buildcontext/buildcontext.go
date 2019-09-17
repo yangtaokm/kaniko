@@ -19,6 +19,7 @@ package buildcontext
 import (
 	"errors"
 	"strings"
+	"regexp"
 
 	"github.com/GoogleContainerTools/kaniko/pkg/constants"
 )
@@ -35,6 +36,7 @@ func GetBuildContext(srcContext string) (BuildContext, error) {
 	split := strings.SplitAfter(srcContext, "://")
 	prefix := split[0]
 	context := split[1]
+	re := regexp.MustCompile(constants.AzureBlobStorageDomainRegEx)
 	switch prefix {
 	case constants.GCSBuildContextPrefix:
 		return &GCS{context: context}, nil
@@ -44,8 +46,13 @@ func GetBuildContext(srcContext string) (BuildContext, error) {
 		return &Dir{context: context}, nil
 	case constants.GitBuildContextPrefix:
 		return &Git{context: context}, nil
-	case constants.AzureBlobBuildContextPrefix:
-		return &AzureBlob{context: context}, nil
+	case constants.HttpsBuildContextPrefix:
+		if (re.MatchString(srcContext)){
+			return &AzureBlob{context: srcContext}, nil
+		}else {
+			return nil, errors.New("unknown Azure Blob Storage URLs")
+		}
+		
 	}
 	return nil, errors.New("unknown build context prefix provided, please use one of the following: gs://, dir://, s3://, git://, abs://")
 }

@@ -41,7 +41,7 @@ const (
 
 	// BuildContextDir is the directory a build context will be unpacked into,
 	// for example, a tarball from a GCS bucket will be unpacked here
-	BuildContextDir = "/kaniko/buildcontext/"
+	BuildContextDir = "$HOME/kaniko/buildcontext/"
 
 	// KanikoIntermediateStagesDir is where we will store intermediate stages
 	// as tarballs in case they are needed later on
@@ -58,7 +58,9 @@ const (
 	S3BuildContextPrefix        = "s3://"
 	LocalDirBuildContextPrefix  = "dir://"
 	GitBuildContextPrefix       = "git://"
-	AzureBlobBuildContextPrefix = "abs://"
+	HttpsBuildContextPrefix 	= "https://"
+
+	AzureBlobStorageDomainRegEx ="https://(.+?).blob.core.windows.net/(.+)"
 
 	HOME = "HOME"
 	// DefaultHOMEValue is the default value Docker sets for $HOME

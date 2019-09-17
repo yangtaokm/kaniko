@@ -18,11 +18,11 @@ package buildcontext
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Azure/azure-storage-blob-go/azblob"
 	"github.com/GoogleContainerTools/kaniko/pkg/constants"
@@ -36,29 +36,27 @@ type AzureBlob struct {
 
 func (b *AzureBlob) UnpackTarFromBuildContext() (string, error) {
 
-	accountName, containerName, blobName := util.GetContainerAndBlob(b.context)
+	
+	u, _ := url.Parse(b.context)
+	parts := azblob.NewBlobURLParts(*u)
+	accountName := strings.Split(parts.Host, ".")[0]
+
 	accountKey := os.Getenv("AZURE_STORAGE_ACCESS_KEY")
 
-	if len(accountName) == 0 || len(accountKey) == 0 {
-		log.Fatal("Either the AZURE_STORAGE_ACCOUNT or AZURE_STORAGE_ACCESS_KEY environment variable is not set")
+	if (len(accountKey) == 0 ){
+		log.Fatal("AZURE_STORAGE_ACCESS_KEY environment variable is not set")
 	}
 
 	credential, err := azblob.NewSharedKeyCredential(accountName, accountKey)
 	if err != nil {
 		return accountName, err
 	}
+
 	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
-
-	URL, _ := url.Parse(
-		fmt.Sprintf("https://%s.blob.core.windows.net/%s", accountName, containerName))
-
-	containerURL := azblob.NewContainerURL(*URL, p)
-
-	ctx := context.Background()
-
-	blobURL := containerURL.NewBlobURL(blobName)
+	blobURL :=azblob.NewBlobURL(*u, p)
 
 	directory := constants.BuildContextDir
+	//directory :="/home/tao/go/src/github.com/GoogleContainerTools/kaniko/out"
 	tarPath := filepath.Join(directory, constants.ContextTar)
 
 	if err := os.MkdirAll(directory, 0750); err != nil {
@@ -70,8 +68,17 @@ func (b *AzureBlob) UnpackTarFromBuildContext() (string, error) {
 		return directory, err
 	}
 
+	
+	ctx := context.Background()
 	if err := azblob.DownloadBlobToFile(ctx, blobURL, 0, 0, f, azblob.DownloadFromBlobOptions{}); err != nil {
-		return directory, err
+		//if stgErr, ok := err.(azblob.StorageError); ok {
+			//println("blob err", stgErr.ServiceCode())
+			//return directory, err
+		//}else {
+			return directory,err
+		//}
+		
+
 	}
 
 	return directory, util.UnpackCompressedTar(tarPath, directory)
