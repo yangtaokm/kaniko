@@ -41,7 +41,7 @@ const (
 
 	// BuildContextDir is the directory a build context will be unpacked into,
 	// for example, a tarball from a GCS bucket will be unpacked here
-	BuildContextDir = "$HOME/kaniko/buildcontext/"
+	BuildContextDir = "/kaniko/buildcontext/"
 
 	// KanikoIntermediateStagesDir is where we will store intermediate stages
 	// as tarballs in case they are needed later on
