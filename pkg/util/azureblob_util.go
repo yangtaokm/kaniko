@@ -27,8 +27,8 @@ import (
 
 func ValidAzureBlobStorageHost(context string) bool {
 	for _, re := range constants.AzureBlobStorageHostRegEx {
-		validBlobUrl := regexp.MustCompile(re)
-		if validBlobUrl.MatchString(context) {
+		validBlobURL := regexp.MustCompile(re)
+		if validBlobURL.MatchString(context) {
 			return true
 		}
 	}

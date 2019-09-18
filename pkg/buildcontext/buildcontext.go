@@ -46,12 +46,11 @@ func GetBuildContext(srcContext string) (BuildContext, error) {
 		return &Dir{context: context}, nil
 	case constants.GitBuildContextPrefix:
 		return &Git{context: context}, nil
-	case constants.HttpsBuildContextPrefix:
+	case constants.HTTPSBuildContextPrefix:
 		if util.ValidAzureBlobStorageHost(srcContext) {
 			return &AzureBlob{context: srcContext}, nil
-		} else {
-			return nil, errors.New("host in https:// prefix URLs is not a supported type, we support Azure Blob Storage now ")
 		}
+		return nil, errors.New("host in https:// prefix URLs is not a supported type, we support Azure Blob Storage now ")
 	}
 	return nil, errors.New("unknown build context prefix provided, please use one of the following: gs://, dir://, s3://, git://, https://")
 }
