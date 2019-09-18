@@ -19,47 +19,57 @@ package util
 import (
 	"testing"
 
-	"github.com/GoogleContainerTools/kaniko/pkg/constants"
 	"github.com/GoogleContainerTools/kaniko/testutil"
 )
 
-func Test_GetContainerAndBlob(t *testing.T) {
+func Test_ValidAzureBlobStorageHost(t *testing.T) {
 	tests := []struct {
-		name                  string
-		context               string
-		expectedAccountName   string
-		expectedContainerName string
-		expectedBlobName      string
+		name           string
+		context        string
+		expectedResult bool
 	}{
 		{
-			name:                  "blob with fold structure",
-			context:               "accountname/containername/fold/blobname",
-			expectedAccountName:   "accountname",
-			expectedContainerName: "containername",
-			expectedBlobName:      "fold/blobname",
+			name:           "AzureCloud",
+			context:        "https://myaccount.blob.core.windows.net/fairingcontext/context.tar.gz",
+			expectedResult: true,
 		},
 		{
-			name:                  "blob without fold",
-			context:               "accountname/containername/blobname",
-			expectedAccountName:   "accountname",
-			expectedContainerName: "containername",
-			expectedBlobName:      "blobname",
+			name:           "AzureChinaCloud",
+			context:        "https://myaccount.blob.core.chinacloudapi.cn/fairingcontext/context.tar.gz",
+			expectedResult: true,
 		},
 		{
-			name:                  "without blobname (default blobname)",
-			context:               "accountname/containername",
-			expectedAccountName:   "accountname",
-			expectedContainerName: "containername",
-			expectedBlobName:      constants.ContextTar,
+			name:           "AzureGermanCloud",
+			context:        "https://myaccount.blob.core.cloudapi.de/fairingcontext/context.tar.gz",
+			expectedResult: true,
+		},
+		{
+			name:           "AzureUSGovernment",
+			context:        "https://myaccount.blob.core.usgovcloudapi.net/fairingcontext/context.tar.gz",
+			expectedResult: true,
+		},
+		{
+			name:           "Invalid Azure Blob Storage Hostname",
+			context:        "https://myaccount.anything.core.windows.net/fairingcontext/context.tar.gz",
+			expectedResult: false,
+		},
+		{
+			name:           "Missing Account",
+			context:        "https://blob.core.windows.net/fairingcontext/context.tar.gz",
+			expectedResult: false,
+		},
+		{
+			name:           "Missing Container",
+			context:        "https://myaccount.blob.core.windows.net/",
+			expectedResult: false,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			gotAccountName, gotContainerName, gotBlobName := GetContainerAndBlob(test.context)
-			testutil.CheckDeepEqual(t, test.expectedAccountName, gotAccountName)
-			testutil.CheckDeepEqual(t, test.expectedContainerName, gotContainerName)
-			testutil.CheckDeepEqual(t, test.expectedBlobName, gotBlobName)
+			result := ValidAzureBlobStorageHost(test.context)
+			testutil.CheckDeepEqual(t, test.expectedResult, result)
+
 		})
 	}
 }

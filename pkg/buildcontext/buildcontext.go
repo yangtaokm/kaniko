@@ -19,9 +19,9 @@ package buildcontext
 import (
 	"errors"
 	"strings"
-	"regexp"
 
 	"github.com/GoogleContainerTools/kaniko/pkg/constants"
+	"github.com/GoogleContainerTools/kaniko/pkg/util"
 )
 
 // BuildContext unifies calls to download and unpack the build context.
@@ -36,7 +36,7 @@ func GetBuildContext(srcContext string) (BuildContext, error) {
 	split := strings.SplitAfter(srcContext, "://")
 	prefix := split[0]
 	context := split[1]
-	re := regexp.MustCompile(constants.AzureBlobStorageDomainRegEx)
+
 	switch prefix {
 	case constants.GCSBuildContextPrefix:
 		return &GCS{context: context}, nil
@@ -47,12 +47,11 @@ func GetBuildContext(srcContext string) (BuildContext, error) {
 	case constants.GitBuildContextPrefix:
 		return &Git{context: context}, nil
 	case constants.HttpsBuildContextPrefix:
-		if (re.MatchString(srcContext)){
+		if util.ValidAzureBlobStorageHost(srcContext) {
 			return &AzureBlob{context: srcContext}, nil
-		}else {
-			return nil, errors.New("unknown Azure Blob Storage URLs")
+		} else {
+			return nil, errors.New("host in https:// prefix URLs is not a supported type, we support Azure Blob Storage now ")
 		}
-		
 	}
-	return nil, errors.New("unknown build context prefix provided, please use one of the following: gs://, dir://, s3://, git://, abs://")
+	return nil, errors.New("unknown build context prefix provided, please use one of the following: gs://, dir://, s3://, git://, https://")
 }

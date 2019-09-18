@@ -29,21 +29,19 @@ import (
 	"github.com/GoogleContainerTools/kaniko/pkg/util"
 )
 
-// GCS struct for Google Cloud Storage processing
+// AzureBlob struct for Azure Blob Storage processing
 type AzureBlob struct {
 	context string
 }
 
 func (b *AzureBlob) UnpackTarFromBuildContext() (string, error) {
 
-	
 	u, _ := url.Parse(b.context)
 	parts := azblob.NewBlobURLParts(*u)
 	accountName := strings.Split(parts.Host, ".")[0]
-
 	accountKey := os.Getenv("AZURE_STORAGE_ACCESS_KEY")
 
-	if (len(accountKey) == 0 ){
+	if len(accountKey) == 0 {
 		log.Fatal("AZURE_STORAGE_ACCESS_KEY environment variable is not set")
 	}
 
@@ -52,11 +50,7 @@ func (b *AzureBlob) UnpackTarFromBuildContext() (string, error) {
 		return accountName, err
 	}
 
-	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
-	blobURL :=azblob.NewBlobURL(*u, p)
-
 	directory := constants.BuildContextDir
-	//directory :="/home/tao/go/src/github.com/GoogleContainerTools/kaniko/out"
 	tarPath := filepath.Join(directory, constants.ContextTar)
 
 	if err := os.MkdirAll(directory, 0750); err != nil {
@@ -68,17 +62,11 @@ func (b *AzureBlob) UnpackTarFromBuildContext() (string, error) {
 		return directory, err
 	}
 
-	
+	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
+	blobURL := azblob.NewBlobURL(*u, p)
 	ctx := context.Background()
 	if err := azblob.DownloadBlobToFile(ctx, blobURL, 0, 0, f, azblob.DownloadFromBlobOptions{}); err != nil {
-		//if stgErr, ok := err.(azblob.StorageError); ok {
-			//println("blob err", stgErr.ServiceCode())
-			//return directory, err
-		//}else {
-			return directory,err
-		//}
-		
-
+		return directory, err
 	}
 
 	return directory, util.UnpackCompressedTar(tarPath, directory)

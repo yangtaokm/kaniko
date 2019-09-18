@@ -54,13 +54,11 @@ const (
 	// NoBaseImage is the scratch image
 	NoBaseImage = "scratch"
 
-	GCSBuildContextPrefix       = "gs://"
-	S3BuildContextPrefix        = "s3://"
-	LocalDirBuildContextPrefix  = "dir://"
-	GitBuildContextPrefix       = "git://"
-	HttpsBuildContextPrefix 	= "https://"
-
-	AzureBlobStorageDomainRegEx ="https://(.+?).blob.core.windows.net/(.+)"
+	GCSBuildContextPrefix      = "gs://"
+	S3BuildContextPrefix       = "s3://"
+	LocalDirBuildContextPrefix = "dir://"
+	GitBuildContextPrefix      = "git://"
+	HttpsBuildContextPrefix    = "https://"
 
 	HOME = "HOME"
 	// DefaultHOMEValue is the default value Docker sets for $HOME
@@ -77,3 +75,9 @@ const (
 
 // ScratchEnvVars are the default environment variables needed for a scratch image.
 var ScratchEnvVars = []string{"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"}
+
+var AzureBlobStorageDomainRegEx = []string{"https://(.+?).blob.core.windows.net/(.+)",
+	"https://(.+?).blob.core.chinacloudapi.cn/(.+)",
+	"https://(.+?).blob.core.cloudapi.de/(.+)",
+	"https://(.+?).blob.core.usgovcloudapi.net/(.+)",
+}

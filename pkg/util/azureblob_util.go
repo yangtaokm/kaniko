@@ -17,7 +17,7 @@ limitations under the License.
 package util
 
 import (
-	"strings"
+	"regexp"
 
 	"github.com/GoogleContainerTools/kaniko/pkg/constants"
 )
@@ -25,15 +25,13 @@ import (
 //return storage accoutName, containerName and blobName from context string
 //format of context [accountName]/[containerName]/[PathToContextfile]
 
-func GetContainerAndBlob(context string) (accoutName string, containerName string, blobName string) {
-	split := strings.SplitN(context, "/", 3)
-	accountName := strings.Split(split[0], ".")[0]
-	containerName = split[1]
-	if len(split) == 3 && split[2] != "" {
-		blobName = split[2]
-	} else {
-		blobName = constants.ContextTar
+func ValidAzureBlobStorageHost(context string) bool {
+	for _, re := range constants.AzureBlobStorageHostRegEx {
+		validBlobUrl := regexp.MustCompile(re)
+		if validBlobUrl.MatchString(context) {
+			return true
+		}
 	}
 
-	return accountName, containerName, blobName
+	return false
 }
