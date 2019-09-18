@@ -54,12 +54,12 @@ func Test_ValidAzureBlobStorageHost(t *testing.T) {
 			expectedResult: false,
 		},
 		{
-			name:           "Missing Account",
+			name:           "URL Missing Accountname",
 			context:        "https://blob.core.windows.net/fairingcontext/context.tar.gz",
 			expectedResult: false,
 		},
 		{
-			name:           "Missing Container",
+			name:           "URL Missing Containername",
 			context:        "https://myaccount.blob.core.windows.net/",
 			expectedResult: false,
 		},

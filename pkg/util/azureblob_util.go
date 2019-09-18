@@ -22,9 +22,8 @@ import (
 	"github.com/GoogleContainerTools/kaniko/pkg/constants"
 )
 
-//return storage accoutName, containerName and blobName from context string
-//format of context [accountName]/[containerName]/[PathToContextfile]
-
+//Validate if the host url provided is with correct suffix for AzureCloud, AzureChinaCloud, AzureGermanCloud and AzureUSGovernment
+//RegEX for supported suffix defined in constants.AzureBlobStorageHostRegEx
 func ValidAzureBlobStorageHost(context string) bool {
 	for _, re := range constants.AzureBlobStorageHostRegEx {
 		validBlobURL := regexp.MustCompile(re)

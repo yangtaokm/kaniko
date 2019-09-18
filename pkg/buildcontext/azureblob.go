@@ -18,7 +18,7 @@ package buildcontext
 
 import (
 	"context"
-	"log"
+	"errors"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -34,39 +34,43 @@ type AzureBlob struct {
 	context string
 }
 
+// Download context file from given azure blob storage url and unpack it to BuildContextDir
 func (b *AzureBlob) UnpackTarFromBuildContext() (string, error) {
 
+	//Get storage accoutname for Azure Blob Storage
 	u, _ := url.Parse(b.context)
 	parts := azblob.NewBlobURLParts(*u)
 	accountName := strings.Split(parts.Host, ".")[0]
-	accountKey := os.Getenv("AZURE_STORAGE_ACCESS_KEY")
 
+	//Get Azure_STORAGE_ACCESS_KEY from environment variables
+	accountKey := os.Getenv("AZURE_STORAGE_ACCESS_KEY")
 	if len(accountKey) == 0 {
-		log.Fatal("AZURE_STORAGE_ACCESS_KEY environment variable is not set")
+		return parts.Host, errors.New("AZURE_STORAGE_ACCESS_KEY environment variable is not set")
 	}
 
+	//Generate credentail with accountname and accountkey
 	credential, err := azblob.NewSharedKeyCredential(accountName, accountKey)
 	if err != nil {
-		return accountName, err
+		return parts.Host, err
 	}
 
+	//Create directory and file for downloading context file
 	directory := constants.BuildContextDir
 	tarPath := filepath.Join(directory, constants.ContextTar)
-
 	if err := os.MkdirAll(directory, 0750); err != nil {
 		return directory, err
 	}
-
 	f, err := os.Create(tarPath)
 	if err != nil {
 		return directory, err
 	}
 
+	//Downloading contextfile from Azure Blob Storage
 	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
 	blobURL := azblob.NewBlobURL(*u, p)
 	ctx := context.Background()
 	if err := azblob.DownloadBlobToFile(ctx, blobURL, 0, 0, f, azblob.DownloadFromBlobOptions{}); err != nil {
-		return directory, err
+		return parts.Host, err
 	}
 
 	return directory, util.UnpackCompressedTar(tarPath, directory)

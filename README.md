@@ -122,14 +122,14 @@ When running kaniko, use the `--context` flag with the appropriate prefix to spe
 | Local Directory   | dir://[path to a directory in the kaniko container]             | `dir:///workspace`                                            |
 | GCS Bucket        | gs://[bucket name]/[path to .tar.gz]                            | `gs://kaniko-bucket/path/to/context.tar.gz`                   |
 | S3 Bucket         | s3://[bucket name]/[path to .tar.gz]                            | `s3://kaniko-bucket/path/to/context.tar.gz`                   |
-| Azure Blob Storage| abs://[storageaccount]/[container]/[path to .tar.gz] | `abs://account/container/path/to/context.tar.gz` |
+| Azure Blob Storage| https://[account].[azureblobhostsuffix]/[container]/[path to .tar.gz] | `https://myaccount.blob.core.windows.net/container/path/to/context.tar.gz` |
 | Git Repository    | git://[repository url][#reference]                              | `git://github.com/acme/myproject.git#refs/heads/mybranch`     |
 
 If you don't specify a prefix, kaniko will assume a local directory.
 For example, to use a GCS bucket called `kaniko-bucket`, you would pass in `--context=gs://kaniko-bucket/path/to/context.tar.gz`.
 
 ### Using Azure Blob Storage
-If you are using Azure Blob Storage (abs://) for context file, you will need to pass [Azure Storage Account Access Key](https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string?toc=%2fazure%2fstorage%2fblobs%2ftoc.json) as an evironment variable named `AZURE_STORAGE_ACCESS_KEY` through Kubernetes Secrets
+If you are using Azure Blob Storage for context file, you will need to pass [Azure Storage Account Access Key](https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string?toc=%2fazure%2fstorage%2fblobs%2ftoc.json) as an evironment variable named `AZURE_STORAGE_ACCESS_KEY` through Kubernetes Secrets
 
 The Kubernetes Pod spec sample as following:
 
@@ -143,7 +143,7 @@ spec:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:latest
     args: ["--dockerfile=<path to Dockerfile within the build context>",
-            "--context=abs://kanikostorageaccount/container/path/to/context.tar.gz",
+            "--context=https://myaccount.blob.core.windows.net/container/path/to/context.tar.gz",
             "--destination=<registry for image push>"]
 ...
  env:
