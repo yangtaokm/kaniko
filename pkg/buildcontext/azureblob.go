@@ -37,16 +37,16 @@ type AzureBlob struct {
 // Download context file from given azure blob storage url and unpack it to BuildContextDir
 func (b *AzureBlob) UnpackTarFromBuildContext() (string, error) {
 
+	//Get Azure_STORAGE_ACCESS_KEY from environment variables
+	accountKey := os.Getenv("AZURE_STORAGE_ACCESS_KEY")
+	if len(accountKey) == 0 {
+		return "", errors.New("AZURE_STORAGE_ACCESS_KEY environment variable is not set")
+	}
+
 	//Get storage accoutname for Azure Blob Storage
 	u, _ := url.Parse(b.context)
 	parts := azblob.NewBlobURLParts(*u)
 	accountName := strings.Split(parts.Host, ".")[0]
-
-	//Get Azure_STORAGE_ACCESS_KEY from environment variables
-	accountKey := os.Getenv("AZURE_STORAGE_ACCESS_KEY")
-	if len(accountKey) == 0 {
-		return parts.Host, errors.New("AZURE_STORAGE_ACCESS_KEY environment variable is not set")
-	}
 
 	//Generate credentail with accountname and accountkey
 	credential, err := azblob.NewSharedKeyCredential(accountName, accountKey)

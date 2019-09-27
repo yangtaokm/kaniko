@@ -50,7 +50,7 @@ func GetBuildContext(srcContext string) (BuildContext, error) {
 		if util.ValidAzureBlobStorageHost(srcContext) {
 			return &AzureBlob{context: srcContext}, nil
 		}
-		return nil, errors.New("context downloding url provided is not a supported format and type, we support Azure Blob Storage now ")
+		return nil, errors.New("url provided for https context is not in a supported format, please use the https url for Azure Blob Storage")
 	}
 	return nil, errors.New("unknown build context prefix provided, please use one of the following: gs://, dir://, s3://, git://, https://")
 }
